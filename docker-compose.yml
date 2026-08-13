@@ -5,12 +5,8 @@ services:
     build:
       context: .
       args:
-        # The secret is baked into the Vite bundle at build time.
-        # Set this variable in the shell before running docker compose,
-        # or add it to a .env file next to docker-compose.yml:
-        # VITE_CALENDAR_SECRET=your-actual-secret
         VITE_CALENDAR_SECRET: ${VITE_CALENDAR_SECRET}
     container_name: aveda-calendar-front
     ports:
-      - "8091:80"
+      - "8091:3000"
     restart: always
