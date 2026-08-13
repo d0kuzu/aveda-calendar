@@ -19,6 +19,7 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ date, slots, isL
     return dateObj.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
+      timeZone: 'America/Winnipeg',
     });
   };
 

@@ -21,10 +21,18 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
     const endDate = new Date(end);
     
     const dateStr = startDate.toLocaleDateString('en-US', {
-      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+      weekday: 'long', 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric',
+      timeZone: 'America/Winnipeg',
     });
     
-    const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit' };
+    const timeOptions: Intl.DateTimeFormatOptions = { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      timeZone: 'America/Winnipeg',
+    };
     const startTimeStr = startDate.toLocaleTimeString('en-US', timeOptions);
     const endTimeStr = endDate.toLocaleTimeString('en-US', timeOptions);
     
