@@ -1,0 +1,103 @@
+import { useState } from 'react';
+
+interface CalendarGridProps {
+  selectedDate: Date;
+  onSelectDate: (date: Date) => void;
+}
+
+const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSelectDate }) => {
+  const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
+
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfMonth(year, month);
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const prevMonth = () => {
+    setCurrentMonth(new Date(year, month - 1, 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(year, month + 1, 1));
+  };
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const grid = [];
+  let dayCounter = 1;
+  let hasStarted = false;
+
+  for (let row = 0; row < 6; row++) {
+    const cells = [];
+    for (let col = 0; col < 7; col++) {
+      if (row === 0 && col === firstDay) {
+        hasStarted = true;
+      }
+      if (hasStarted && dayCounter <= daysInMonth) {
+        const date = new Date(year, month, dayCounter);
+        const isPast = date < today;
+        const isSelected = date.getTime() === selectedDate.getTime();
+        
+        cells.push(
+          <td key={col}>
+            <button
+              className={`day-button ${isSelected ? 'selected' : ''}`}
+              disabled={isPast}
+              onClick={() => onSelectDate(date)}
+              aria-label={`${date.toDateString()}`}
+            >
+              {dayCounter}
+            </button>
+          </td>
+        );
+        dayCounter++;
+      } else {
+        cells.push(<td key={col}></td>);
+      }
+    }
+    grid.push(<tr key={row}>{cells}</tr>);
+    if (dayCounter > daysInMonth) break;
+  }
+
+  return (
+    <div className="calendar-grid-container">
+      <div className="calendar-controls">
+        <div className="current-month">
+          {monthNames[month]} {year}
+        </div>
+        <div className="nav-buttons">
+          <button className="icon-button" onClick={prevMonth} aria-label="Previous month">
+            <span className="material-icons">chevron_left</span>
+          </button>
+          <button className="icon-button" onClick={nextMonth} aria-label="Next month">
+            <span className="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <table className="calendar-table">
+        <thead>
+          <tr>
+            {daysOfWeek.map(day => (
+              <th key={day}>{day}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {grid}
+        </tbody>
+      </table>
+    </div>
+  );
+};
