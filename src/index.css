@@ -222,7 +222,24 @@ body, html {
 
 .calendar-table td {
   text-align: center;
-  padding: 4px;
+  padding: 2px 0;
+  position: relative;
+}
+
+.calendar-table td.in-range {
+  background-color: var(--google-blue-light);
+}
+
+.calendar-table td.range-start {
+  border-radius: 50% 0 0 50%;
+}
+
+.calendar-table td.range-end {
+  border-radius: 0 50% 50% 0;
+}
+
+.calendar-table td.range-start.range-end {
+  border-radius: 50%;
 }
 
 .day-button {
@@ -240,15 +257,17 @@ body, html {
   justify-content: center;
   margin: 0 auto;
   transition: all 0.2s;
+  position: relative;
+  z-index: 1;
 }
 
 .day-button:hover:not(:disabled):not(.selected) {
-  background-color: var(--bg-secondary);
+  background-color: rgba(26, 115, 232, 0.15);
 }
 
 .day-button.selected {
-  background-color: var(--google-blue-light);
-  color: var(--google-blue);
+  background-color: var(--google-blue);
+  color: #fff;
 }
 
 .day-button:disabled {

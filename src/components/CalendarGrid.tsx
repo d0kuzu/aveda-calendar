@@ -60,9 +60,18 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
         const isPast = date < today;
         const isBeyondMax = date > maxDate;
         const isSelected = date.getTime() === selectedDate.getTime();
+        const isInRange = date >= today && date <= maxDate;
+        const isRangeStart = date.getTime() === today.getTime();
+        const isRangeEnd = date.getTime() === maxDate.getTime() || (date.getTime() === maxDate.getTime());
+
+        const tdClasses = [
+          isInRange ? 'in-range' : '',
+          isRangeStart ? 'range-start' : '',
+          isRangeEnd ? 'range-end' : '',
+        ].filter(Boolean).join(' ');
         
         cells.push(
-          <td key={col}>
+          <td key={col} className={tdClasses}>
             <button
               className={`day-button ${isSelected ? 'selected' : ''}`}
               disabled={isPast || isBeyondMax}
