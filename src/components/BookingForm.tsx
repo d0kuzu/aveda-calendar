@@ -10,7 +10,7 @@ interface BookingFormProps {
 export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [description, setDescription] = useState('');
+  const [phone, setPhone] = useState('');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +39,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
     return `${dateStr} ⋅ ${startTimeStr} – ${endTimeStr}`;
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Allow digits, plus, spaces, hyphens, and parentheses
+    const filtered = val.replace(/[^0-9+\s\-()]/g, '');
+    setPhone(filtered);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -50,7 +57,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
         end_time: slot.end_time,
         guest_name: name,
         guest_email: email,
-        description: description,
+        description: `Phone: ${phone}`,
       });
       setSuccessData(response);
     } catch (err: any) {
@@ -90,7 +97,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label className="form-label" htmlFor="name">Name</label>
+          <label className="form-label" htmlFor="name">Name *</label>
           <input
             id="name"
             type="text"
@@ -103,7 +110,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="email">Email</label>
+          <label className="form-label" htmlFor="email">Email *</label>
           <input
             id="email"
             type="email"
@@ -116,14 +123,16 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="description">Phone number / Additional info</label>
-          <textarea
-            id="description"
-            className="form-textarea"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="+1 234 567 8900"
-          ></textarea>
+          <label className="form-label" htmlFor="phone">Phone Number *</label>
+          <input
+            id="phone"
+            type="tel"
+            className="form-input"
+            value={phone}
+            onChange={handlePhoneChange}
+            required
+            placeholder="+1 (204) 555-0199"
+          />
         </div>
 
         {error && <div className="error-message">{error}</div>}
