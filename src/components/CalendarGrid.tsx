@@ -20,6 +20,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Max bookable date: 7 days from today
+  const maxDate = new Date(today);
+  maxDate.setDate(maxDate.getDate() + 7);
+
   const prevMonth = () => {
     setCurrentMonth(new Date(year, month - 1, 1));
   };
@@ -27,6 +31,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
   const nextMonth = () => {
     setCurrentMonth(new Date(year, month + 1, 1));
   };
+
+  // Disable prev button if current month is the same as today's month
+  const prevDisabled = year <= today.getFullYear() && month <= today.getMonth();
+  // Disable next button if first day of next month is beyond maxDate
+  const firstOfNextMonth = new Date(year, month + 1, 1);
+  const nextDisabled = firstOfNextMonth > maxDate;
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -48,13 +58,14 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
       if (hasStarted && dayCounter <= daysInMonth) {
         const date = new Date(year, month, dayCounter);
         const isPast = date < today;
+        const isBeyondMax = date > maxDate;
         const isSelected = date.getTime() === selectedDate.getTime();
         
         cells.push(
           <td key={col}>
             <button
               className={`day-button ${isSelected ? 'selected' : ''}`}
-              disabled={isPast}
+              disabled={isPast || isBeyondMax}
               onClick={() => onSelectDate(date)}
               aria-label={`${date.toDateString()}`}
             >
@@ -78,10 +89,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
           {monthNames[month]} {year}
         </div>
         <div className="nav-buttons">
-          <button className="icon-button" onClick={prevMonth} aria-label="Previous month">
+          <button className="icon-button" onClick={prevMonth} disabled={prevDisabled} aria-label="Previous month">
             <span className="material-icons">chevron_left</span>
           </button>
-          <button className="icon-button" onClick={nextMonth} aria-label="Next month">
+          <button className="icon-button" onClick={nextMonth} disabled={nextDisabled} aria-label="Next month">
             <span className="material-icons">chevron_right</span>
           </button>
         </div>
