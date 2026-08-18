@@ -8,6 +8,11 @@ interface BookingFormProps {
 }
 
 export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
+  // Read ?client= query param for auto-filling phone
+  const urlParams = new URLSearchParams(window.location.search);
+  const clientPhone = urlParams.get('client')?.trim() || '';
+  const hasClientParam = clientPhone.length > 0;
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -57,7 +62,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
         end_time: slot.end_time,
         guest_name: name,
         guest_email: email,
-        description: `Phone: ${phone}`,
+        description: `Phone: ${hasClientParam ? clientPhone : phone}`,
       });
       setSuccessData(response);
     } catch (err: any) {
@@ -122,18 +127,20 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
           />
         </div>
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="phone">Phone Number *</label>
-          <input
-            id="phone"
-            type="tel"
-            className="form-input"
-            value={phone}
-            onChange={handlePhoneChange}
-            required
-            placeholder="+1 (204) 555-0199"
-          />
-        </div>
+        {!hasClientParam && (
+          <div className="form-group">
+            <label className="form-label" htmlFor="phone">Phone Number *</label>
+            <input
+              id="phone"
+              type="tel"
+              className="form-input"
+              value={phone}
+              onChange={handlePhoneChange}
+              required
+              placeholder="+1 (204) 555-0199"
+            />
+          </div>
+        )}
 
         {error && <div className="error-message">{error}</div>}
 
