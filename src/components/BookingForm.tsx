@@ -7,11 +7,49 @@ interface BookingFormProps {
   onBack: () => void;
 }
 
+/**
+ * Normalizes and validates phone numbers.
+ * Supports:
+ * - 10 digits (e.g. 2045550199) -> +12045550199
+ * - 11 digits starting with 1 (e.g. 12045550199) -> +12045550199
+ * - Leading + with 1 + 10 digits (+12045550199) or international (10-15 digits)
+ * Returns normalized E.164 format (+1XXXXXXXXXX) or null if invalid.
+ */
+export const normalizePhoneNumber = (raw: string): string | null => {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  const digits = trimmed.replace(/\D/g, '');
+
+  if (trimmed.startsWith('+')) {
+    if (digits.startsWith('1')) {
+      if (digits.length === 11) {
+        return `+${digits}`;
+      }
+      return null;
+    }
+    if (digits.length >= 10 && digits.length <= 15) {
+      return `+${digits}`;
+    }
+    return null;
+  }
+
+  if (digits.length === 10) {
+    return `+1${digits}`;
+  }
+
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `+${digits}`;
+  }
+
+  return null;
+};
+
 export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
-  // Read ?client= query param for auto-filling phone
+  // Read and validate ?client= query param for auto-filling phone
   const urlParams = new URLSearchParams(window.location.search);
-  const clientPhone = urlParams.get('client')?.trim() || '';
-  const hasClientParam = clientPhone.length > 0;
+  const rawClientParam = urlParams.get('client')?.trim() || '';
+  const normalizedClientPhone = normalizePhoneNumber(rawClientParam);
+  const hasValidClientParam = normalizedClientPhone !== null;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -53,16 +91,29 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError(null);
+
+    let finalPhone: string;
+
+    if (hasValidClientParam) {
+      finalPhone = normalizedClientPhone;
+    } else {
+      const normalized = normalizePhoneNumber(phone);
+      if (!normalized) {
+        setError('Please enter a valid phone number (at least 10 digits).');
+        return;
+      }
+      finalPhone = normalized;
+    }
     
+    setIsSubmitting(true);
     try {
       const response = await bookSlot({
         start_time: slot.start_time,
         end_time: slot.end_time,
         guest_name: name,
         guest_email: email,
-        description: `Phone: ${hasClientParam ? clientPhone : phone}`,
+        description: `Phone: ${finalPhone}`,
       });
       setSuccessData(response);
     } catch (err: any) {
@@ -127,7 +178,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
           />
         </div>
 
-        {!hasClientParam && (
+        {!hasValidClientParam && (
           <div className="form-group">
             <label className="form-label" htmlFor="phone">Phone Number *</label>
             <input
