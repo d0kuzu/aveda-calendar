@@ -10,6 +10,10 @@ function App() {
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
+    // If today is a day off (Sunday=0 or Monday=1), select the next available day
+    while (d.getDay() === 0 || d.getDay() === 1) {
+      d.setDate(d.getDate() + 1);
+    }
     return d;
   });
   

@@ -57,12 +57,21 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
       }
       if (hasStarted && dayCounter <= daysInMonth) {
         const date = new Date(year, month, dayCounter);
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 1; // Sunday (0) and Monday (1) are days off
         const isPast = date < today;
         const isBeyondMax = date > maxDate;
+        const isSelectable = !isPast && !isBeyondMax && !isWeekend;
         const isSelected = date.getTime() === selectedDate.getTime();
-        const isInRange = date >= today && date <= maxDate;
-        const isRangeStart = date.getTime() === today.getTime();
-        const isRangeEnd = date.getTime() === maxDate.getTime() || (date.getTime() === maxDate.getTime());
+        const isInRange = isSelectable;
+
+        const prevDay = new Date(year, month, dayCounter - 1);
+        const isPrevInRange = prevDay >= today && prevDay <= maxDate && !(prevDay.getDay() === 0 || prevDay.getDay() === 1);
+        const isRangeStart = isInRange && (!isPrevInRange || col === 0);
+
+        const nextDay = new Date(year, month, dayCounter + 1);
+        const isNextInRange = nextDay >= today && nextDay <= maxDate && !(nextDay.getDay() === 0 || nextDay.getDay() === 1);
+        const isRangeEnd = isInRange && (!isNextInRange || col === 6);
 
         const tdClasses = [
           isInRange ? 'in-range' : '',
@@ -74,7 +83,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
           <td key={col} className={tdClasses}>
             <button
               className={`day-button ${isSelected ? 'selected' : ''}`}
-              disabled={isPast || isBeyondMax}
+              disabled={!isSelectable}
               onClick={() => onSelectDate(date)}
               aria-label={`${date.toDateString()}`}
             >
