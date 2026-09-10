@@ -1,14 +1,6 @@
 export const Sidebar = () => {
   return (
     <div className="sidebar">
-      <div className="host-info">
-        <img
-          src="https://lh3.googleusercontent.com/a/ACg8ocISiofNMg-i6LDCCDHOiWaoFajes6LvE9aX6ONXkdK8gxEUbko=s80-c-mo"
-          alt="Cali Beaudet"
-          className="host-avatar"
-        />
-        <div className="host-name">Cali Beaudet</div>
-      </div>
       <h1 className="event-title">Aveda Campus Tour</h1>
       <div className="event-details">
         <div className="detail-item">

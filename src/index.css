@@ -63,26 +63,6 @@ body, html {
   }
 }
 
-.host-info {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.host-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 12px;
-  object-fit: cover;
-}
-
-.host-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
 .event-title {
   font-size: 28px;
   font-weight: 400;
