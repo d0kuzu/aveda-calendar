@@ -20,9 +20,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Max bookable date: 7 days from today
+  // Max bookable date: 5 days from today
   const maxDate = new Date(today);
-  maxDate.setDate(maxDate.getDate() + 7);
+  maxDate.setDate(maxDate.getDate() + 5);
 
   const prevMonth = () => {
     setCurrentMonth(new Date(year, month - 1, 1));
