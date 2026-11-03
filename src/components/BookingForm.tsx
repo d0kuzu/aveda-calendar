@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { bookSlot } from '../api';
 import type { TimeSlot, BookingResponse } from '../api';
+import { formatSlotWallTime } from './TimeSlotPicker';
 
 interface BookingFormProps {
   slot: TimeSlot;
@@ -60,25 +61,21 @@ export const BookingForm: React.FC<BookingFormProps> = ({ slot, onBack }) => {
   const [successData, setSuccessData] = useState<BookingResponse | null>(null);
 
   const formatTimeRange = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    
+    const dateMatch = start.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    const startDate = dateMatch
+      ? new Date(Number(dateMatch[1]), Number(dateMatch[2]) - 1, Number(dateMatch[3]), 12, 0, 0)
+      : new Date(start);
+
     const dateStr = startDate.toLocaleDateString('en-US', {
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric', 
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
       year: 'numeric',
-      timeZone: 'America/Winnipeg',
     });
-    
-    const timeOptions: Intl.DateTimeFormatOptions = { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      timeZone: 'America/Winnipeg',
-    };
-    const startTimeStr = startDate.toLocaleTimeString('en-US', timeOptions);
-    const endTimeStr = endDate.toLocaleTimeString('en-US', timeOptions);
-    
+
+    const startTimeStr = formatSlotWallTime(start);
+    const endTimeStr = formatSlotWallTime(end);
+
     return `${dateStr} ⋅ ${startTimeStr} – ${endTimeStr}`;
   };
 

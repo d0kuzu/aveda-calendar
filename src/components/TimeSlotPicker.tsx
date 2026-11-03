@@ -7,21 +7,33 @@ interface TimeSlotPickerProps {
   onSelectSlot: (slot: TimeSlot) => void;
 }
 
+export const formatSlotWallTime = (timeString: string): string => {
+  // Parse wall-clock hour and minute directly from RFC3339 (e.g. "2026-11-03T11:00:00-05:00")
+  // so client OS/browser tzdata differences never shift the displayed Winnipeg time.
+  const match = timeString.match(/T(\d{2}):(\d{2})/);
+  if (match) {
+    const h24 = parseInt(match[1], 10);
+    const m = match[2];
+    const period = h24 >= 12 ? 'PM' : 'AM';
+    const h12 = h24 % 12 || 12;
+    return `${h12}:${m} ${period}`;
+  }
+  const dateObj = new Date(timeString);
+  return dateObj.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'America/Winnipeg',
+  });
+};
+
 export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ date, slots, isLoading, onSelectSlot }) => {
-  const formattedDate = date.toLocaleDateString('en-US', {
+  const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0).toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
   });
 
-  const formatTime = (timeString: string) => {
-    const dateObj = new Date(timeString);
-    return dateObj.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZone: 'America/Winnipeg',
-    });
-  };
+  const formatTime = (timeString: string) => formatSlotWallTime(timeString);
 
   return (
     <div className="time-slots-container">

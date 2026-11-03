@@ -8,6 +8,17 @@ interface CalendarGridProps {
 const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
+export const getWinnipegToday = (): Date => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Winnipeg',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+  return new Date(Number(map.year), Number(map.month) - 1, Number(map.day));
+};
+
 export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSelectDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
 
@@ -17,8 +28,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = getWinnipegToday();
 
   // Max bookable date: 5 days from today
   const maxDate = new Date(today);
