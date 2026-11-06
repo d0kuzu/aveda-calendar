@@ -19,6 +19,19 @@ export const getWinnipegToday = (): Date => {
   return new Date(Number(map.year), Number(map.month) - 1, Number(map.day));
 };
 
+export const getBookingWindowDays = (today: Date): number => {
+  const y = today.getFullYear();
+  const m = today.getMonth(); // 0 is January, 11 is December
+  const d = today.getDate();
+
+  // Extend booking window to 12 days on December 22nd and change back to 5 days on January 4th (Winnipeg time)
+  const isHolidayWindow =
+    (y === 2026 && m === 11 && d >= 22) ||
+    (y === 2027 && m === 0 && d < 4);
+
+  return isHolidayWindow ? 12 : 5;
+};
+
 export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSelectDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
 
@@ -30,9 +43,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
   
   const today = getWinnipegToday();
 
-  // Max bookable date: 5 days from today
+  // Max bookable date: 12 days during holiday period (Dec 22, 2026 – Jan 3, 2027), 5 days otherwise
+  const bookingWindowDays = getBookingWindowDays(today);
   const maxDate = new Date(today);
-  maxDate.setDate(maxDate.getDate() + 5);
+  maxDate.setDate(maxDate.getDate() + bookingWindowDays);
 
   const prevMonth = () => {
     setCurrentMonth(new Date(year, month - 1, 1));
@@ -42,8 +56,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ selectedDate, onSele
     setCurrentMonth(new Date(year, month + 1, 1));
   };
 
-  // Disable prev button if current month is the same as today's month
-  const prevDisabled = year <= today.getFullYear() && month <= today.getMonth();
+  // Disable prev button if current month is the same as today's month or earlier
+  const prevDisabled = year < today.getFullYear() || (year === today.getFullYear() && month <= today.getMonth());
   // Disable next button if first day of next month is beyond maxDate
   const firstOfNextMonth = new Date(year, month + 1, 1);
   const nextDisabled = firstOfNextMonth > maxDate;
